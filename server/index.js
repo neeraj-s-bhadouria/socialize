@@ -8,9 +8,10 @@ import helmet from 'helmet';
 import morgan from 'morgan';
 import path from 'path';
 import { fileURLToPath } from 'url';
-import { API, AUTH, REGISTER } from './Constants.js';
+import { API, AUTH, REGISTER, USER } from './Constants.js';
 import { register } from './controller/Auth.js';
 import authRoutes from './routes/Auth.js';
+import userRoutes from './routes/User.js';
 
 /* CONFIGURATIONS */
 const __filename = fileURLToPath(import.meta.url);
@@ -40,6 +41,7 @@ const upload = multer({ storage });
 /* ROUTES WITH FILES */
 app.post(API+AUTH+REGISTER, upload.single("picture"), register);
 app.use(API+AUTH, authRoutes);
+app.use(API+USER, userRoutes);
 
 /* MONGOOSE SETUP */
 const PORT = process.env.PORT || 9211;
