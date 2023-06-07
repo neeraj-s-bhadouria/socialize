@@ -38,3 +38,42 @@ export const getUserFriends = async (req, res) => {
         return res.json(500).json({ error: error.message });
     }
 }
+
+
+/* FRIEND/UNFRIEND SOMEONE */
+export const addRemoveFriend = async (req, res) => {
+    try {
+        console.log('Inside addRemoveFriend function');
+        const { id, friendId } = req.params;
+        const user = await User.findById(id);
+        const friend = await User.findById(friendId);
+        if(user.friends.includes(friendId)){
+            //unfriending both from each other
+            console.log(`unfriending ${user.firstName} and ${friend.firstName}`);
+            user.friends = user.friends.filter((fId) => fId !== friendId);
+            friend.friends = friend.friends.filter((fId) => fId !== id);
+        } else {
+            //befrinding both users
+            console.log(`befriending ${id} and ${friendId}`);
+            user.friends.push(friendId);
+            friend.friends.push(id);
+        }
+        //saving both updated records
+        await user.save();
+        await friend.save();
+        //formatting user's record before returning to the UI
+        const friends = Promise.all(
+            user.friends.map((fId) => User.findById(fId))
+        );
+        console.log(`found all ${(await friends).length} friends`);
+        const formattedFriends = friends.map(
+            ({ _id, firstName, lastName, occupation, location, picturePath }) => {
+                return { _id, firstName, lastName, occupation, location, picturePath };
+            }
+        )
+        res.status(200).json({ formattedFriends: formattedFriends });
+    } catch (error) {
+        console.log(`error: ${error}`);
+        res.status(500).json({ error: error.message });
+    }
+}
