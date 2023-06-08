@@ -23,11 +23,11 @@ export const getUserFriends = async (req, res) => {
         const user = await User.findById(id).select({password: 0});
         console.log(`user by ${id}: ${user.firstName}`);
         //finding all the friends records from the ids found in user.friends
-        const friends = Promise.all(
+        const friends = await Promise.all(
             user.friends.map((id) => User.findById(id))
         );
         console.log(`found all ${(await friends).length} friends`);
-        const formattedFriends = friends.map(
+        const formattedFriends = await friends.map(
             ({ _id, firstName, lastName, occupation, location, picturePath }) => {
                 return { _id, firstName, lastName, occupation, location, picturePath };
             }
@@ -62,11 +62,11 @@ export const addRemoveFriend = async (req, res) => {
         await user.save();
         await friend.save();
         //formatting user's record before returning to the UI
-        const friends = Promise.all(
+        const friends = await Promise.all(
             user.friends.map((fId) => User.findById(fId))
         );
         console.log(`found all ${(await friends).length} friends`);
-        const formattedFriends = friends.map(
+        const formattedFriends = await friends.map(
             ({ _id, firstName, lastName, occupation, location, picturePath }) => {
                 return { _id, firstName, lastName, occupation, location, picturePath };
             }
